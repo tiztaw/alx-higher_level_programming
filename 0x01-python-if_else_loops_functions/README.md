@@ -1,1 +1,1 @@
-0x01. C - Variables, if, else, while
+Python :) if else loops functions
