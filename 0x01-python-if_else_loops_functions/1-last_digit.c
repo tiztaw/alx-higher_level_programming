@@ -1,27 +1,14 @@
-#include <stdlib.h>
-#include <time.h>
-#include <stdio.h>
-
-/**
- * main - prints the last digit of n and prints out whether it is
- * greater than 5, 0, or less than 6
- * Return: 0
- */
-int main(void)
-{
-	int n;
-	int lastDigit;
-
-	srand(time(0));
-	n = rand() - RAND_MAX / 2;
-
-	lastDigit = n % 10;
-	printf("Last digit of %i is %i and is ", n, lastDigit);
-	if (lastDigit > 5)
-		printf("greater than 5\n");
-	else if (lastDigit == 0)
-		printf("0\n");
-	else
-		printf("less than 6 and not 0\n");
-	return (0);
-}
+#!/usr/bin/python3
+import random
+number = random.randint(-10000, 10000)
+if number < 0:
+    remainder = number % -10
+else:
+    remainder = number % 10
+print('Last digit of', number, 'is', remainder, end=' ')
+if remainder > 5:
+    print('and is greater than 5')
+elif remainder == 0:
+    print('and is 0')
+else:
+    print('and is less than 6 and not 0')
