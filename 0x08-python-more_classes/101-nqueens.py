@@ -1,117 +1,126 @@
-import time
- 
-# print the board
-def print_board(board, n):
-    for i in range(n):
-        for j in range(n):
-            print(board[i][j], end = " ")
-        print()
- 
-# joining '.' and 'Q'
-# making combined 2D Array
-#For output in desired format
-def add_sol(board, ans, n):
-    temp = []
-    for i in range(n):
-        string = ""
-        for j in range(n):
-            string += board[i][j]
-        temp.append(string)
-    ans.append(temp)
-     
-     
-# we need to check in three directions
-# 1. in the same column above the current position
-# 2. in the left top diagonal from the given cell
-# 3. in the right top diagonal from the given cell
-def  is_safe(row, col, board, n):
-    x = row
-    y = col
-    #check for same upper col
-    while(x>=0):
-        if board[x][y] == "Q":
-            return False
-        else:
-            x -= 1
-             
-    #Check for Upper Right Diagonal
-    x = row
-    y = col
-    while(y<n and x>=0):
-        if board[x][y] == "Q":
-            return False
-        else:
-            y += 1
-            x -= 1
-             
-    #check for Upper Left diagonal
-    x = row
-    y = col
-    while(y>=0 and x>=0):
-        if board[x][y] == "Q":
-            return False
-        else:
-            x -= 1
-            y -= 1
-    return True   
- 
- 
-# function to solve n queens
-# solveNQueens function here will fill the queens
-# 1. there can be only one queen in one row
-# 2. if we filled the final row in the board then row will
-# be equal to total number of rows in board
-# 3. push that board configuration in answer set because
-# there will be more than one answers for filling the board
-# with n-queens
-def solveNQueens(row, ans, board, n):
-    #base Case
-    #Queen is depicted by "Q"
-    # adding solution to final answer array
-    if row == n:
-        add_sol(board, ans, n)
-        return
-     
-    #solve 1 case and rest recursion will follow
-    for col in range(n):
-        # for each position check if it is safe and if it
-        # is safe make a recursive call with
-        # row+1, board[i][j]='Q' and then revert the change
-        # in board that is make the board[i][j]='.' again to
-        # generate more solutions
-        if is_safe(row, col, board, n):
-            # if placing Queen is safe
-            board[row][col] = "Q"
-            solveNQueens(row+1, ans, board, n)
-            # Backtrack
-            board[row][col] = "."
-             
- 
- 
-# Driver Code
+#!/usr/bin/python3
+"""Solves the N-queens puzzle"""
+
+import sys
+
+
+def init_board(n):
+    """Initialize an `n`x`n` sized chessboard with 0's."""
+    board = []
+    [board.append([]) for i in range(n)]
+    [row.append(' ') for i in range(n) for row in board]
+    return (board)
+
+
+def board_deepcopy(board):
+    """Return a deepcopy of a chessboard."""
+    if isinstance(board, list):
+        return list(map(board_deepcopy, board))
+    return (board)
+
+
+def get_solution(board):
+    """Return the list of lists representation of a solved chessboard."""
+    solution = []
+    for r in range(len(board)):
+        for c in range(len(board)):
+            if board[r][c] == "Q":
+                solution.append([r, c])
+                break
+    return (solution)
+
+
+def xout(board, row, col):
+    """X out spots on a chessboard.
+
+    All spots where non-attacking queens can no
+    longer be played are X-ed out.
+
+    Args:
+        board (list): The current working chessboard.
+        row (int): The row where a queen was last played.
+        col (int): The column where a queen was last played.
+    """
+    # X out all forward spots
+    for c in range(col + 1, len(board)):
+        board[row][c] = "x"
+    # X out all backwards spots
+    for c in range(col - 1, -1, -1):
+        board[row][c] = "x"
+    # X out all spots below
+    for r in range(row + 1, len(board)):
+        board[r][col] = "x"
+    # X out all spots above
+    for r in range(row - 1, -1, -1):
+        board[r][col] = "x"
+    # X out all spots diagonally down to the right
+    c = col + 1
+    for r in range(row + 1, len(board)):
+        if c >= len(board):
+            break
+        board[r][c] = "x"
+        c += 1
+    # X out all spots diagonally up to the left
+    c = col - 1
+    for r in range(row - 1, -1, -1):
+        if c < 0:
+            break
+        board[r][c]
+        c -= 1
+    # X out all spots diagonally up to the right
+    c = col + 1
+    for r in range(row - 1, -1, -1):
+        if c >= len(board):
+            break
+        board[r][c] = "x"
+        c += 1
+    # X out all spots diagonally down to the left
+    c = col - 1
+    for r in range(row + 1, len(board)):
+        if c < 0:
+            break
+        board[r][c] = "x"
+        c -= 1
+
+
+def recursive_solve(board, row, queens, solutions):
+    """Recursively solve an N-queens puzzle.
+
+    Args:
+        board (list): The current working chessboard.
+        row (int): The current working row.
+        queens (int): The current number of placed queens.
+        solutions (list): A list of lists of solutions.
+    Returns:
+        solutions
+    """
+    if queens == len(board):
+        solutions.append(get_solution(board))
+        return (solutions)
+
+    for c in range(len(board)):
+        if board[row][c] == " ":
+            tmp_board = board_deepcopy(board)
+            tmp_board[row][c] = "Q"
+            xout(tmp_board, row, c)
+            solutions = recursive_solve(tmp_board, row + 1,
+                                        queens + 1, solutions)
+
+    return (solutions)
+
+
 if __name__ == "__main__":
-    # size 4x4 is taken and we can pass some other
-    # dimension for chess board as well
-    n = 4
-     
-    # 2D array of string will make our board
-    #  which is initially all empty
-    board = [["." for i in range(n)] for j in range(n)]
-    # store all the possible answers
-    ans = []
-    start = time.time()
-     
-    solveNQueens(0, ans, board, n)
-    end = time.time()
-    time_taken = end - start
-     
-    if ans == []:
-        print("Solution does not exist")
-    else:
-        print(len(ans))
-        print(f"{time_taken:.06f} time was taken(in miliseconds)")
-        print(f"Out Of {len(ans)} solutions one is following")
-        print_board(ans[0], n)
-         
-    # This code is contributed by Priyank Namdeo
-        
+    if len(sys.argv) != 2:
+        print("Usage: nqueens N")
+        sys.exit(1)
+    if sys.argv[1].isdigit() is False:
+        print("N must be a number")
+        sys.exit(1)
+    if int(sys.argv[1]) < 4:
+        print("N must be at least 4")
+        sys.exit(1)
+
+    board = init_board(int(sys.argv[1]))
+    solutions = recursive_solve(board, 0, 0, [])
+    for sol in solutions:
+        print(sol)
